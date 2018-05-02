@@ -8,12 +8,19 @@ from os import link
 
 
 search_item ="Which of these is NOT another name for a tsunami?"
-search_item = search_item.lower()
-a = "Seismic wave"
+if("NOT" in search_item):
+
+    search = search_item.replace("NOT", "")
+else:
+    search = search_item
+
+
+
+a = "Seismic Wave"
 #a= a.lower()
-b = "Shock wave"
+b = "Shock Wave"
 #b= b.lower()
-c = "Harbor wave"
+c = "Harbor Wave"
 #c=c.lower()
 
 page= 2
@@ -25,12 +32,12 @@ countA=0
 countB=0
 countC=0
 
-url = "https://www.google.co.in/search?site=&source=hp&q=" + search_item + "&gws_rd=ssl"
+url = "https://www.google.co.in/search?site=&source=hp&q=" + search + "&gws_rd=ssl"
 
 #gets url for any page
 
-for page in range(1, 20):
-    urlPage = f'https://www.google.com/search?q={search_item}\
+for page in range(1, 5):
+    urlPage = f'https://www.google.com/search?q={search}\
                     &ei=m3w9WuyXNJHMwALelovwAQ&start={str(page)+"0"}&sa=N&biw=848&bih=972'
     print("URL:" + str(urlPage))
 
@@ -118,5 +125,41 @@ for page in range(1, 20):
 
 
 print (countA , countB , countC)
+total = countA+countB+countC
+
+chanceOfA=0
+chanceOfB=0
+chanceOfC=0
+if ("NOT" in search_item):
 
 
+
+    if(countA ==0):
+        chanceOfA = 1;
+
+    if (countB == 0):
+        chanceOfB = 1;
+
+    if (countC == 0):
+        chanceOfC = 1;
+
+    else:
+        chanceOfA = 1 / countA
+        chanceOfB = 1 / countB
+        chanceOfC = 1 / countC
+
+
+
+
+
+
+
+else:
+    chanceOfA = countA / total
+
+    chanceOfB = countB / total
+
+    chanceOfC = countA / total
+
+
+print(chanceOfA, chanceOfB, chanceOfC)
