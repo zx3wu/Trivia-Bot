@@ -1,0 +1,55 @@
+import requests
+import urllib
+from bs4 import BeautifulSoup
+
+#print(response.text)
+from os import link
+
+search_item ="Which of these states does NOT touch the Mason-Dixon Line?"
+a = "West Virginia"
+b = "Delaware"
+c = "Tennessee"
+
+
+#result_block = soup.find_all('div', attrs={'class': 'g'})
+#for result in result_block:
+   # print(result)
+
+countA=0
+countB=0
+countC=0
+
+url = "https://www.google.co.in/search?site=&source=hp&q=" + search_item + "&gws_rd=ssl"
+
+response = requests.get(url)
+soup = BeautifulSoup(response.text, "html.parser")
+container = soup.findAll("div", {"class" : "s"})
+for item in container:
+    print("body: " +item.text)
+    link = item.div.cite
+    print("link: "+link.text )
+   # words = [a,b,c]
+
+
+   # site = urllib.request.urlopen(link).read()
+   # for word in words:
+   #     if word in site:
+    #        print(word)
+    #    else:
+    #        print(word, "not found")
+
+    if (a in item.text):
+        countA=countA+1
+    if (b in item.text):
+        countB = countB + 1
+    if (c in item.text):
+        countC = countC + 1
+
+
+
+
+print (countA , countB , countC)
+
+
+
+
