@@ -1,152 +1,315 @@
 import requests
-import urllib
 from bs4 import BeautifulSoup
+import speech_recognition as sr
 
 #print(response.text)
-from os import link
+r= sr.Recognizer()
+with sr.Microphone() as source:
+        print("say question")
+        audio = r.listen(source)
+        print("say options")
+        answers= r.listen(source)
+
+try:
+    print("Google thinks you said:\n:" + r.recognize_google(audio) + r.recognize_google(answers))
+except:
+    pass
+
+def find_between_r( s, first, last ):
+    try:
+        start = s.rindex( first ) + len( first )
+        end = s.rindex( last, start )
+        return s[start:end]
+    except ValueError:
+        return ""
+search_item = str(r.recognize_google(audio))
+answer= r.recognize_google(answers).split()
+print(answer)
+a = answer[0]
+# a= a.lower()
+b = answer[1]
+    # b= b.lower()
+c = answer[2]
 
 
-
-search_item ="Which of these is NOT another name for a tsunami?"
-if("NOT" in search_item):
-
-    search = search_item.replace("NOT", "")
-else:
-    search = search_item
+    # c=c.lower()
 
 
+def getArticle(url):
 
-a = "Seismic Wave"
-#a= a.lower()
-b = "Shock Wave"
-#b= b.lower()
-c = "Harbor Wave"
-#c=c.lower()
+    result = requests.get("http://www2.ucdsb.on.ca/tiss/stretton/chem1/ametric1.html")
+    c = result.content
+    soup = BeautifulSoup(c)
 
-page= 2
-#result_block = soup.find_all('div', attrs={'class': 'g'})
-#for result in result_block:
-   # print(result)
+    article_text = ''
+    article = soup.find("div", {"class":"container"}).findAll('p')
+    for element in article:
+        article_text += '\n' + ''.join(element.findAll(text = True))
+    return article_text
 
-countA=0
-countB=0
-countC=0
+def countsInLink():
+    search_item = str(r.recognize_google(audio))
+    if ("NOT" in search_item):
 
-url = "https://www.google.co.in/search?site=&source=hp&q=" + search + "&gws_rd=ssl"
+        search = search_item.replace("NOT", "")
+    else:
+        search = search_item
 
-#gets url for any page
+    answer= r.recognize_google(answers).split()
+    print(answer)
 
-for page in range(1, 5):
-    urlPage = f'https://www.google.com/search?q={search}\
-                    &ei=m3w9WuyXNJHMwALelovwAQ&start={str(page)+"0"}&sa=N&biw=848&bih=972'
-    print("URL:" + str(urlPage))
+    a = answer[0]
+    # a= a.lower()
+    b = answer[1]
+    # b= b.lower()
+    c = "tension"
+    # c=c.lower()
 
+    page = 2
+    # result_block = soup.find_all('div', attrs={'class': 'g'})
+    # for result in result_block:
+    # print(result)
 
-    response = requests.get(urlPage)
-    soup = BeautifulSoup(response.text, "html.parser")
-    container = soup.findAll("div", {"class" : "s"})
+    countA = 0
+    countB = 0
+    countC = 0
 
-
-    for item in container:
-        print("body: " +item.text)
-        #link = item.div.cite
-        url = "https://www.britannica.com/place/Mason-and-Dixon-Line"
-
-        words = [a, b, c]
-
-
-
-        for word in words:
+    url = "https://www.google.co.in/search?site=&source=hp&q=" + search + "&gws_rd=ssl"
 
 
+    # gets url for any page
 
+    for page in range(1, 2):
+        urlPage = f'https://www.google.com/search?q={search}\
+                        &ei=m3w9WuyXNJHMwALelovwAQ&start={str(page)+"0"}&sa=N&biw=848&bih=972'
+        print("URL:" + str(urlPage))
 
-            if (word.count==1):
-            # if word in mystr:
-            #  print(word)
-            # else:
-            #  print(word, "not found")
+        response = requests.get(urlPage)
+        soup = BeautifulSoup(response.text, "html.parser")
+        container = soup.findAll("div", {"class": "s"})
 
-                if (a in item.text or a.lower() in item.text):
-                    countA = countA + 1
-                if (b in item.text  or b.lower() in item.text):
-                    countB = countB + 1
-                if (c in item.text  or c.lower() in item.text):
-                    countC = countC + 1
-            #check if same word exists in all 3 options
+        # linkContainter = soup.findAll("div")
 
-            else:
-                for eachWord in word.split():
-                    print(eachWord)
+        for item in soup.select(" .r a"):
 
-                    if (eachWord in item.text and word == a):
+            html = str(item)
+            print(html)
+            newLink = find_between_r(html, "q=", "\">")
 
+            link = "\"" + newLink + "\""
+            # print(link)
+
+            # response = requests.get("https://study.com/academy/lesson/what-is-nature-lesson-for-kids.html")
+            # soup = BeautifulSoup(response.text, "html.parser")
+            # container = soup.findAll("div",{"class": "container"})
+
+            text = getArticle(link)
+            print(text)
+
+            # print("body: " + item.text)
+
+            words = [a, b, c]
+
+            for word in words:
+
+                if (word.count == 1):
+                    # if word in mystr:
+                    #  print(word)
+                    # else:
+                    #  print(word, "not found")
+
+                    if (a in item.text or a.lower() in item.text):
                         countA = countA + 1
-
-                    if ((eachWord in item.text) and word == b):
+                    if (b in item.text or b.lower() in item.text):
                         countB = countB + 1
-
-                    if (eachWord in item.text and word == c):
+                    if (c in item.text or c.lower() in item.text):
                         countC = countC + 1
+                # check if same word exists in all 3 options
+
+                else:
+                    for eachWord in word.split():
+                        print(eachWord)
+
+                        if (eachWord in item.text and word == a):
+                            countA = countA + 1
+
+                        if ((eachWord in item.text) and word == b):
+                            countB = countB + 1
+
+                        if (eachWord in item.text and word == c):
+                            countC = countC + 1
+
+            # print (re.search("(?P<url>https?://[^\s]+)", html).group("url"))
+
+            # print("item: " + item)
+
+            """print("body: " +item.text)
+            link = item.div.cite
+            print("link: " +link.text)
+            quoted = f'"{link.text}"'
+            print(quoted)
+
+            """
+
+            # print("link: " + link.text)
+        """ 
+        req = Request("https://stackoverflow.com/questions/16627227/http-error-403-in-python-3-web-scraping", headers={'User-Agent': 'Mozilla/5.0'})
+            webpage = urlopen(req).read()
+            data = webpage.splitlines()
+        """
+
+        # data = urllib.request.urlopen('https://medium.freecodecamp.org/how-to-scrape-websites-with-python-and-beautifulsoup-5946935d93fe')  # read only 20 000 chars
+        # data = data.splitlines()  # then split it into lines
+
+        ##url = "https://www.britannica.com/place/Mason-and-Dixon-Line"
+
+    # print("link: "+link.text )
+
+    # website = urllib.request.urlopen(url)
+    # website_html = website.read()
+
+    # with urllib.request.urlopen('http://python.org/') as response:
+    # html = response.read()
+    # print(html.text)
+
+    # for line in urllib.request.urlopen(url):
+    #   print
+    #  line
+
+    # r = requests.get(url)
+    # r.text
+    # print("text: "+ r.text)
+    # site = urllib.request.urlopen(link).read()
+
+    # fp = urllib.request.urlopen(url)
+    # mybytes = fp.read()
+
+    # mystr = mybytes.decode("utf8")
+    # fp.close()
+    # print("decoded: " + mybytes)
+
+    print(countA, countB, countC)
+    total = countA + countB + countC
+
+    chanceOfA = 0
+    chanceOfB = 0
+    chanceOfC = 0
+    if ("NOT" in search_item):
+
+        if (countA == 0):
+            chanceOfA = 1;
+
+        if (countB == 0):
+            chanceOfB = 1;
+
+        if (countC == 0):
+            chanceOfC = 1;
+
+        else:
+            chanceOfA = 1 / countA
+            chanceOfB = 1 / countB
+            chanceOfC = 1 / countC
 
 
 
 
-   # print("link: "+link.text )
-
-#website = urllib.request.urlopen(url)
-#website_html = website.read()
-
-#with urllib.request.urlopen('http://python.org/') as response:
-  # html = response.read()
-  # print(html.text)
-
-   # for line in urllib.request.urlopen(url):
-     #   print
-      #  line
-
-    #r = requests.get(url)
-    #r.text
-    #print("text: "+ r.text)
-    #site = urllib.request.urlopen(link).read()
-
-    #fp = urllib.request.urlopen(url)
-    #mybytes = fp.read()
-
-   # mystr = mybytes.decode("utf8")
-   # fp.close()
-    #print("decoded: " + mybytes)
 
 
-
-        
-
-
-
-
-print (countA , countB , countC)
-total = countA+countB+countC
-
-chanceOfA=0
-chanceOfB=0
-chanceOfC=0
-if ("NOT" in search_item):
-
-
-
-    if(countA ==0):
-        chanceOfA = 1;
-
-    if (countB == 0):
-        chanceOfB = 1;
-
-    if (countC == 0):
-        chanceOfC = 1;
 
     else:
-        chanceOfA = 1 / countA
-        chanceOfB = 1 / countB
-        chanceOfC = 1 / countC
+        chanceOfA = countA / total
+
+        chanceOfB = countB / total
+
+        chanceOfC = countA / total
+
+    print(chanceOfA, chanceOfB, chanceOfC)
+
+def countsOnPage (search_item, a,b,c):
+
+    if ("NOT" in search_item):
+
+        search = search_item.replace("NOT", "")
+    else:
+        search = search_item
+
+
+    # result_block = soup.find_all('div', attrs={'class': 'g'})
+    # for result in result_block:
+    # print(result)
+
+    countA = 0
+    countB = 0
+    countC = 0
+
+    url = "https://www.google.co.in/search?site=&source=hp&q=" + search + "&gws_rd=ssl"
+
+    # gets url for any page
+
+    for page in range(1, 3):
+        urlPage = f'https://www.google.com/search?q={search}\
+                            &ei=m3w9WuyXNJHMwALelovwAQ&start={str(page)+"0"}&sa=N&biw=848&bih=972'
+        print("URL:" + str(urlPage))
+
+        response = requests.get(urlPage)
+        soup = BeautifulSoup(response.text, "html.parser")
+        container = soup.findAll("div", {"class": "s"})
+
+        for item in container:
+            print("body: " + item.text)
+
+            words = [a, b, c]
+
+            for word in words:
+
+                if (word.count == 1):
+                    # if word in mystr:
+                    #  print(word)
+                    # else:
+                    #  print(word, "not found")
+
+                    if (a in item.text or a.lower() in item.text):
+                        countA = countA + 1
+                    if (b in item.text or b.lower() in item.text):
+                        countB = countB + 1
+                    if (c in item.text or c.lower() in item.text):
+                        countC = countC + 1
+                # check if same word exists in all 3 options
+
+                else:
+                    for eachWord in word.split():
+                        print(eachWord)
+
+                        if (eachWord in item.text and word == a):
+                            countA = countA + 1
+
+                        if ((eachWord in item.text) and word == b):
+                            countB = countB + 1
+
+                        if (eachWord in item.text and word == c):
+                            countC = countC + 1
+
+    print(countA, countB, countC)
+    total = countA + countB + countC
+
+    chanceOfA = 0
+    chanceOfB = 0
+    chanceOfC = 0
+    if ("NOT" in search_item):
+
+        if (countA == 0):
+            chanceOfA = 1;
+
+        if (countB == 0):
+            chanceOfB = 1;
+
+        if (countC == 0):
+            chanceOfC = 1;
+
+        else:
+            chanceOfA = 1 / countA
+            chanceOfB = 1 / countB
+            chanceOfC = 1 / countC
 
 
 
@@ -154,12 +317,67 @@ if ("NOT" in search_item):
 
 
 
-else:
-    chanceOfA = countA / total
+    else:
+        chanceOfA = countA / total
 
-    chanceOfB = countB / total
+        chanceOfB = countB / total
 
-    chanceOfC = countA / total
+        chanceOfC = countA / total
+
+    return (chanceOfA, chanceOfB, chanceOfC)
 
 
-print(chanceOfA, chanceOfB, chanceOfC)
+def countsOnWeb(search_item, a,b,c):
+    page =1
+
+
+    searchA = search_item + " " + "\"" +a  + "\""
+    searchB = search_item + " " + "\"" + b + "\""
+    searchC = search_item + " " + "\"" + c + "\""
+
+    arraySearch = [searchA,searchB,searchC]
+
+    for item in arraySearch:
+        urlPage = f'https://www.google.com/search?q={str(item)}\
+                                      &ei=m3w9WuyXNJHMwALelovwAQ&start={str(page)+"1"}&sa=N&biw=848&bih=972'
+        print("URL:" + str(urlPage))
+        print(urlPage)
+
+        response = requests.get(urlPage)
+        soup = BeautifulSoup(response.text, "html.parser")
+        container = soup.findAll("div", {"id": "cst"})
+        print(container.text)
+        for item in container:
+            print ("item: " +item.text)
+
+
+    return response
+def countsWeb(search_item, a,b,c):
+    page = 1
+
+    searchA = search_item + " " + "\"" + a + "\""
+    searchB = search_item + " " + "\"" + b + "\""
+    searchC = search_item + " " + "\"" + c + "\""
+
+    arraySearch = [searchA, searchB, searchC]
+    results=[]
+
+    for item in arraySearch:
+        urlPage = f'https://www.google.com/search?q={str(item)}\
+                                          &ei=m3w9WuyXNJHMwALelovwAQ&start={str(page)+"1"}&sa=N&biw=848&bih=972'
+        print("URL:" + str(urlPage))
+        print(urlPage)
+
+
+        response = requests.get(urlPage)
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        result_stats = soup.find(id='resultStats')
+        print(result_stats.text)
+        #results.append(item + " " + result_stats.text)
+
+
+
+
+countsWeb(str(search_item), a,b,c)
+#res = countsOnWeb("Which NBA franchise has the most individual winners in the Slam Dunk Contest?", "Atlanta Hawks", "New York Knicks", "Chicago Bulls")
